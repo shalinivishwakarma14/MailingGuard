@@ -1,0 +1,17 @@
+﻿From: attacker@example.com
+To: victim@example.com
+Subject: Urgent Account Verification
+Date: Sat, 29 Aug 2026 10:00:00 +0530
+Message-ID: <test123@example.com>
+Received: from mail.example.com (mail.example.com [8.8.8.8])
+    by mail.victim.com with ESMTP;
+    Sat, 29 Aug 2026 10:00:00 +0530
+Received: from internal.local (192.168.1.10)
+    by mail.example.com;
+    Sat, 29 Aug 2026 09:59:00 +0530
+
+Hello,
+Your account requires urgent verification.
+Please click the link below.
+
+http://example.com/login
