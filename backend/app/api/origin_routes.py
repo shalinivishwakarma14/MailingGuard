@@ -1,8 +1,10 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from app.services.geolocation import get_ip_geolocation
-from app.utils.ip_utils import validate_ip
+from app.services.origin_tracing import (
+    trace_origin,
+    trace_origin_from_headers
+)
 
 
 router = APIRouter(
@@ -15,41 +17,41 @@ class OriginRequest(BaseModel):
     ip: str
 
 
+class HeaderOriginRequest(BaseModel):
+    headers: str
+
+
 @router.post("/trace")
-def trace_origin(request: OriginRequest):
-    """
-    Validate an IP address and return approximate origin information.
-    """
+def trace_origin_route(request: OriginRequest):
 
-    # Validate IP
-    ip_info = validate_ip(request.ip)
-
-    if not ip_info.get("valid"):
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid IP address",
-        )
-
-    # Only allow publicly routable IP addresses
-    if not ip_info.get("global"):
-        raise HTTPException(
-            status_code=400,
-            detail="IP address is private or not globally routable",
-        )
-
-    # Get geolocation
-    result = get_ip_geolocation(request.ip)
+    result = trace_origin(request.ip)
 
     if not result.get("success"):
         raise HTTPException(
             status_code=400,
             detail=result.get(
                 "error",
-                "Origin tracing failed",
-            ),
+                "Origin tracing failed"
+            )
         )
 
     return {
-        "origin": result,
-        "ip_validation": ip_info,
+        "origin": result
     }
+
+
+@router.post("/trace-headers")
+def trace_headers_route(request: HeaderOriginRequest):
+
+    result = trace_origin_from_headers(request.headers)
+
+    if not result.get("success"):
+        raise HTTPException(
+            status_code=400,
+            detail=result.get(
+                "error",
+                "Origin tracing failed"
+            )
+        )
+
+    return result
